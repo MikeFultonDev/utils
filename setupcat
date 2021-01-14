@@ -1,0 +1,23 @@
+#!/bin/sh
+if [ $# -eq 0 ]; then
+	echo "Syntax: $0 <vol>" >&2
+	echo "  Set up user catalog on volume" >&2
+	exit 4
+fi
+
+vol=$(echo ${1} | tr '[:lower:]' '[:upper:]')
+sysname=`sysvar SYSNAME`
+user="CATALOG.${sysname}USER.${vol}.CAT"
+master="CATALOG.${sysname}MSTR.CAT"
+
+echo "
+  DEFINE USERCATALOG -
+   (NAME(${user}) -
+    MEGABYTES(10,10) -
+    VOLUME(${vol}) -
+   ) -
+   CATALOG(${master})
+" | mvscmdauth --pgm=IDCAMS --sysin=stdin --sysprint=stdout
+rc=$?
+
+exit $rc

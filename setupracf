@@ -1,0 +1,17 @@
+#!/bin/sh
+if [ $# -ne 1 ]; then
+	echo "Syntax: $0 <hlq>" >&2
+	echo "  Set up alias <hlq> racf group" >&2
+	exit 4
+fi
+
+hlq=$(echo ${1} | tr '[:lower:]' '[:upper:]')
+
+echo "
+  ADDGROUP (${hlq}) OWNER(SYS1) SUPGROUP(SYS1) TERMUACC
+  ADDSD ('${hlq}.**') UACC(NONE)
+  PERMIT '${hlq}.**' ACCESS(ALTER) ID(SYSPROG)
+" | mvscmdauth --pgm=IKJEFT01 --systsin=stdin --systsprt=stdout
+rc=$?
+
+exit $rc
